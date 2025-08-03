@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>PromptSafely</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      display: flex;
+      height: 100vh;
+    }
+    #chat, #logs {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    #chat {
+      border-right: 1px solid #ccc;
+    }
+    #promptInput {
+      width: 100%;
+      padding: 10px;
+      font-size: 1rem;
+    }
+    #response {
+      margin-top: 10px;
+      padding: 10px;
+      background: #f0f0f0;
+      border-radius: 5px;
+    }
+    #logBox {
+      white-space: pre-wrap;
+      background: #111;
+      color: #0f0;
+      padding: 10px;
+      border-radius: 5px;
+      height: 90%;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+  <div id="chat">
+    <h2>Prompt Input</h2>
+    <textarea id="promptInput" rows="4" placeholder="Enter your prompt here..."></textarea>
+    <button onclick="sendPrompt()">Submit</button>
+    <div id="response"></div>
+  </div>
+
+  <div id="logs">
+    <h2>Server Logs</h2>
+    <div id="logBox">Loading logs...</div>
+  </div>
+
+  <script>
+    async function sendPrompt() {
+      const input = document.getElementById("promptInput").value;
+      const resDiv = document.getElementById("response");
+      resDiv.innerText = "Sending...";
+
+      const res = await fetch("/api/prompt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: input })
+      });
+
+      const data = await res.text();
+      resDiv.innerText = "Response: " + data;
+    }
+
+     async function fetchLogs() {
+       try {
+         const res = await fetch("/logs"); // Endpoint you must create
+         const logs = await res.text();
+         document.getElementById("logBox").innerText = logs;
+       } catch {
+         document.getElementById("logBox").innerText = "Unable to load logs.";
+       }
+     }
+
+    setInterval(fetchLogs, 2000); // Refresh logs every 2s
+  </script>
+</body>
+</html>
