@@ -1,5 +1,5 @@
 apiVersion: pipecd.dev/v1beta1
-kind: Application 
+kind: Application
 spec:
   name: PromptSafely
   plugins:
@@ -8,10 +8,18 @@ spec:
       workspace: default
       commandFlags: 
         plan:
-        - "-no-color"
+          - "-no-color"
         # apply:
-        # - "-auto-approve"
+        #   - "-auto-approve"
 
   pipeline:
+    stages: 
+      - name: OPENTOFU_PLAN
+        with:
+          exitOnNoChanges: true
+      - name: OPENTOFU_APPLY
+        with:
+          autoApprove: true
 
-  palnner: 
+  planner: 
+    alwaysUsePipeline: true
