@@ -26,7 +26,7 @@ async def readyz():
     except RedisError as e:
         raise HTTPException(status_code=503, detail="Redis error") from e
 
-@router.get("/metrices")
+@router.get("/metrics")
 async def metrices():
     return {"message": "expose Prometheus registry"}
     
