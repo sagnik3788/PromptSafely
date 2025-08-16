@@ -7,8 +7,8 @@ load_dotenv()
 class RedisClient:
     def __init__(self):
         self.host = os.getenv("REDIS_HOST","127.0.0.1")
-        self.port = os.getenv("REDIS_PORT")
-        self.db   = os.getenv("REDIS_DB")
+        self.port = os.getenv("REDIS_PORT", "6379")
+        self.db   = os.getenv("REDIS_DB", "0")
         
         #  pool it so that we dont need to create tcp connection again n again
         self.pool = redis.ConnectionPool(
