@@ -20,8 +20,11 @@ async def healthz():
 @router.get("/readyz")
 async def readyz():
     try:
-        if redis_client.ping():                 
-            return {"message": "All services are up"}
+        if redis_client.ping():
+            return  JSONResponse(
+                status_code= status.HTTP_200_OK,
+                content= {"status": "200", "message": "All services are up"}
+            )             
         raise HTTPException(status_code=503, detail="Redis not responding")
     except RedisError as e:
         raise HTTPException(status_code=503, detail="Redis error") from e
