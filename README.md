@@ -15,6 +15,12 @@ Its goal is to make prompts and responses **safe, policy-driven, and observable*
 
 ---
 
+## Architecture
+
+![PromptSafely Architecture](assets/promptsafely_architecture_hd.jpg)
+
+---
+
 ##  Phase 1 (MVP)
 
 - **OpenAI-compatible proxy**: `/v1/chat/completions`  
@@ -49,5 +55,3 @@ Its goal is to make prompts and responses **safe, policy-driven, and observable*
 - Reversible tokenization with a vault  
 - Replay sandbox for testing policies  
 - Built-in red-team suite for jailbreak testing  
-
----
