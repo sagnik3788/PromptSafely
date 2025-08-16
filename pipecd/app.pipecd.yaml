@@ -18,8 +18,7 @@ spec:
         with:
           exitOnNoChanges: true
       - name: OPENTOFU_APPLY
-        with:
-          autoApprove: true
+  
 
   planner: 
     alwaysUsePipeline: true
