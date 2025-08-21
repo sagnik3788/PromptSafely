@@ -30,6 +30,8 @@ async def readyz():
         raise HTTPException(status_code=503, detail="Redis not responding")
     except RedisError as e:
         raise HTTPException(status_code=503, detail="Redis error") from e
+    
+    
 
 #  /metrics/ endpoint for promethus client
 metrices_app = make_asgi_app()
