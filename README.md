@@ -21,7 +21,7 @@ Its goal is to make prompts and responses **safe, policy-driven, and observable*
 
 --- -->
 
-## Prod-Grade CI/CD Pipeline
+## GitOps CI/CD with PipeCD
 
 ![PromptSafely CI/CD](assets/ci-cd-pipecd.png)
 
