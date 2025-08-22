@@ -5,7 +5,7 @@ Its goal is to make prompts and responses **safe, policy-driven, and observable*
 
 ---
 
-## Goals
+##  Goals
 
 - **Keep prompts safe** by filtering out sensitive data, secrets, and jailbreak attempts.  
 - **Give teams control** through policies (YAML per tenant) that define redaction, blocking, and limits.  
@@ -15,28 +15,13 @@ Its goal is to make prompts and responses **safe, policy-driven, and observable*
 
 ---
 
-<!-- ## Architecture
+## Architecture
 
 ![PromptSafely Architecture](assets/promptsafely_architecture_hd.jpg)
 
---- -->
-
-## Prod-Grade CI/CD Pipeline
-
-![PromptSafely CI/CD](ci-cd-pipecd.png)
-
-### Why this setup
-- Cluster changes only via Git.  
-- Separate repo for manifest files.  
-- CI does not have cluster creds.  
-- Use of new PipeCD plugins → plug and deploy.  
-
-> **Note:** For now doing this for the **dev stage**.  
-> Directly updating the manifest is **not good for prod**; in that case, we will create a PR for human approval.  
-
 ---
 
-## Phase 1 (MVP)
+##  Phase 1 (MVP)
 
 - **OpenAI-compatible proxy**: `/v1/chat/completions`  
 - **Input filters**:  
@@ -70,5 +55,3 @@ Its goal is to make prompts and responses **safe, policy-driven, and observable*
 - Reversible tokenization with a vault  
 - Replay sandbox for testing policies  
 - Built-in red-team suite for jailbreak testing  
-
----
