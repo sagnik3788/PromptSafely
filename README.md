@@ -23,7 +23,7 @@ Its goal is to make prompts and responses **safe, policy-driven, and observable*
 
 ## Prod-Grade CI/CD Pipeline
 
-![PromptSafely CI/CD](ci-cd-pipecd.png)
+![PromptSafely CI/CD](assets/ci-cd-pipecd.png)
 
 ### Why this setup
 - Cluster changes only via Git.  
