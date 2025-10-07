@@ -26,6 +26,9 @@ jobs:
         if: ${{ success() && github.ref == 'refs/heads/main' }}
         needs: tests
         uses: ./.github/workflows/push-image.yaml
+        secrets:
+           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
     notify:
         if: ${{failure()}}
