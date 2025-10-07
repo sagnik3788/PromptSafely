@@ -25,7 +25,7 @@ jobs:
     push_image:
         if: ${{success() && github.ref == 'refs/heads/main'}}
         needs: tests
-        uses: ./.github/workflows/push_image.yaml
+        uses: ./.github/workflows/push-image.yaml
 
     notify:
         if: ${{failure()}}
