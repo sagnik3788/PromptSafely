@@ -23,7 +23,7 @@ jobs:
 
       - name: Build and Push to Docker Hub
         run: |
-          IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}
+          IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/promptsafely
           docker build -t ${IMAGE_NAME}:${{ github.sha }} .
           docker push ${IMAGE_NAME}:${{ github.sha }}
           # job only runs on main, so always push latest
