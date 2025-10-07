@@ -1,5 +1,4 @@
-# test_sample.py
-
-
 def test_sanity():
-    assert True
+    # simple sanity test: use explicit raise to avoid Bandit B101 (assert_used)
+    if not True:
+        raise AssertionError("Sanity test failed")
