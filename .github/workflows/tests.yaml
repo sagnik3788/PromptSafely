@@ -11,6 +11,9 @@ jobs:
       - name: Install uv (shared)
         uses: ./.github/actions/install-uv
 
+      - name: Install dev dependencies
+        run: uv pip install -r requirements-dev.txt --system
+
       - name: Run tests
         run: |
           uv run pytest --maxfail=1 --disable-warnings -q
