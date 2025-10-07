@@ -22,8 +22,8 @@ jobs:
           uv run flake8 .
 
       - name: Security Scan
-        run: uv run bandit -r .
+        run: uv run bandit -r . --exclude "./.venv,./build,./dist"
         
       - name: Secrets Scan
-        run: uv run detect-secrets scan
+        run: uv run detect-secrets scan --all-files
           

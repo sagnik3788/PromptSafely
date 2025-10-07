@@ -3,7 +3,8 @@ from redis.exceptions import RedisError
 from fastapi.responses import JSONResponse
 from storage.redis_client import RedisClient
 from prometheus_client import make_asgi_app
-from moniter.metrics import REDACTIONS_TOTAL, REQUESTS_TOTAL
+
+# from moniter.metrics import REDACTIONS_TOTAL, REQUESTS_TOTAL
 
 app = FastAPI()
 router = APIRouter()
