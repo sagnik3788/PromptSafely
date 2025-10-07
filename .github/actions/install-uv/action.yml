@@ -1,0 +1,26 @@
+name: Install uv
+description: Set up Python, cache pip, and install the `uv` CLI.
+inputs:
+  python-version:
+    description: 'Python version to install'
+    required: false
+    default: '3.13'
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    # - name: Cache pip
+    #   uses: actions/cache@v4
+    #   with:
+    #     path: ~/.cache/pip
+    #     key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
+    #     restore-keys: |
+    #       ${{ runner.os }}-pip-
+
+    - name: Upgrade pip and install uv
+      run: python -m pip install --upgrade pip && pip install uv

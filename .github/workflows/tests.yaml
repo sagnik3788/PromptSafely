@@ -8,6 +8,9 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
+      - name: Install uv (shared)
+        uses: ./.github/actions/install-uv
+
       - name: Run tests
         run: |
           uv run pytest --maxfail=1 --disable-warnings -q

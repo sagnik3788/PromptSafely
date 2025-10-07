@@ -8,10 +8,8 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
-      - name: Setup python
-        uses: actions/setup-python@v6 # does not support uv caching
-        with:
-          python-version: '3.13'
+      - name: Install uv (shared)
+        uses: ./.github/actions/install-uv
       - name: Install dependencies
         run: uv pip install -r requirements.txt
       - name:  Build

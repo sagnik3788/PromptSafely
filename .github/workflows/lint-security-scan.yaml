@@ -9,6 +9,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install uv (shared)
+        uses: ./.github/actions/install-uv
+
       - name: Install dev dependencies
         run: uv pip install -r requirements-dev.txt
 
