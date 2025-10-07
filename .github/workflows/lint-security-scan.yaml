@@ -13,7 +13,7 @@ jobs:
         uses: ./.github/actions/install-uv
 
       - name: Install dev dependencies
-        run: uv pip install -r requirements.txt --system
+        run: uv pip install -r requirements-dev.txt --system
         shell: bash
 
       - name: Lint & Format
