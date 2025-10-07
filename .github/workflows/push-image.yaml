@@ -26,6 +26,6 @@ jobs:
           IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/promptsafely
           docker build -t ${IMAGE_NAME}:${{ github.sha }} .
           docker push ${IMAGE_NAME}:${{ github.sha }}
-          # job only runs on main, so always push latest
-          docker tag ${IMAGE_NAME}:${{ github.sha }} ${IMAGE_NAME}:latest
-          docker push ${IMAGE_NAME}:latest
+          # # job only runs on main, so always push latest
+          # docker tag ${IMAGE_NAME}:${{ github.sha }} ${IMAGE_NAME}:latest
+          # docker push ${IMAGE_NAME}:latest
