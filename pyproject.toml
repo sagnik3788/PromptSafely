@@ -1,0 +1,10 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "promptsafely"
+version = "0.1.0"
+description = "PromptSafely app"
+authors = [{ name = "Sagnik" }]
+requires-python = ">=3.10"
