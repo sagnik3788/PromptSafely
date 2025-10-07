@@ -1,0 +1,33 @@
+name: CI Pipeline
+
+on:
+    push:
+        branches: [main,master,dev]
+    pull_request:
+
+jobs:
+    build:
+        # Skip internal PRs to avoid duplicate runs.
+        # feat branch will run two times ci in push and pr , so avoid ci run for this pr , run only when forked pr or branch push etc.
+        if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository }}
+        uses: ./.github/workflows/build.yaml
+
+    lint_security:
+        needs: build
+        if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository }}
+        uses: ./.github/workflows/lint-security-scan.yaml
+
+    tests:
+        needs: lint_security
+        if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository }}
+        uses: ./.github/workflows/tests.yaml
+
+    push_image:
+        if: ${{success() && github.ref == 'refs/head/main'}}
+        needs: tests
+        uses: ./.github/workflows/push_image.yaml
+
+    notify:
+        if: ${{failure()}}
+        needs: [build, lint_security, tests]
+        uses: ./.github/workflows/notify.yaml

@@ -1,0 +1,25 @@
+name: Lint & Security Checks
+
+on:
+  workflow_call:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dev dependencies
+        run: uv pip install -r requirements-dev.txt
+
+      - name: Lint & Format
+        run: |
+          uv run black --check .
+          uv run flake8 .
+
+      - name: Security Scan
+        run: uv run bandit -r .
+        
+      - name: Secrets Scan
+        run: uv run detect-secrets scan
+          
