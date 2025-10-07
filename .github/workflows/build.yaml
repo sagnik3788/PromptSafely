@@ -11,7 +11,7 @@ jobs:
       - name: Install uv (shared)
         uses: ./.github/actions/install-uv
       - name: Install dependencies
-        run: uv pip install -r requirements.txt
+        run: uv pip install -r requirements.txt --system
       - name:  Build
         run: uv build
 
