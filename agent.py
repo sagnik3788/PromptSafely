@@ -17,7 +17,8 @@ import logging
 MANIFEST_REPO_HTTP = os.getenv(
     "MANIFEST_REPO_HTTP", "git@github.com:sagnik3788/PromptSafely-infra.git"
 )
-GIT_TOKEN = os.getenv("GIT_TOKEN")  # set if you want to use HTTPS auth (not required if using SSH deploy key)
+GIT_TOKEN = os.getenv("GIT_TOKEN")
+# set GIT_TOKEN if you want to use HTTPS auth (not required with SSH deploy key)
 TARGET_BRANCH = os.getenv("TARGET_BRANCH", "staging")
 TARGET_FILE = os.getenv("TARGET_FILE", "envs/staging.tfvars")
 WEBHOOK_SECRET = os.getenv("WEBHOOK_SECRET")
@@ -25,7 +26,8 @@ GIT_USER = os.getenv("GIT_USER", "sagnik3788")
 GIT_EMAIL = os.getenv("GIT_EMAIL", "sagnikdas5432@gmail.com")
 IMAGE_FIELD_REGEX = os.getenv("IMAGE_FIELD_REGEX", r'^\s*image\s*=\s*["\'].*["\']\s*$')
 
-# SSH deploy key to use for git (optional). If repo url is SSH (git@...), this is used automatically.
+# SSH deploy key to use for git (optional).
+# If repo url is SSH (git@...), this key will be used automatically.
 SSH_KEY_PATH = os.path.expanduser(os.getenv("SSH_KEY_PATH", "~/.ssh/promptbot_deploy"))
 
 if not MANIFEST_REPO_HTTP:
@@ -38,7 +40,9 @@ logger = logging.getLogger("agent")
 app = FastAPI()
 
 
-def verify_webhook_signature(secret: str, body: bytes, signature_header: Optional[str]) -> bool:
+def verify_webhook_signature(
+    secret: str, body: bytes, signature_header: Optional[str]
+) -> bool:
     if not signature_header:
         logger.debug("No signature header provided")
         return False
@@ -60,21 +64,35 @@ def verify_webhook_signature(secret: str, body: bytes, signature_header: Optiona
 
 def build_image_ref(repo_name: str, tag: Optional[str], digest: Optional[str]) -> str:
     if digest:
-        return f"{repo_name}@{digest if digest.startswith('sha256:') else 'sha256:' + digest}"
+        if digest.startswith("sha256:"):
+            d = digest
+        else:
+            d = f"sha256:{digest}"
+        return f"{repo_name}@{d}"
     return f"{repo_name}:{tag or 'latest'}"
 
 
 def ensure_ssh_key_in_env(repo_url: str):
     """
-    If repo_url is an SSH url (git@...), ensure GIT_SSH_COMMAND uses the configured SSH key.
+    If repo_url is an SSH url (git@...), ensure GIT_SSH_COMMAND uses
+    the configured SSH key.
     """
     if repo_url.startswith("git@") or repo_url.startswith("ssh://"):
         if not os.path.exists(SSH_KEY_PATH):
-            logger.warning("SSH repo requested but SSH key not found at %s; git operations may fail", SSH_KEY_PATH)
+            logger.warning(
+                "SSH requested but key not found at %s; git ops may fail",
+                SSH_KEY_PATH,
+            )
             return
         # ensure git uses the given key for SSH ops
-        os.environ["GIT_SSH_COMMAND"] = f"ssh -i {SSH_KEY_PATH} -o IdentitiesOnly=yes -o StrictHostKeyChecking=no"
-        logger.debug("Using SSH key for git operations (not printing path for security).")
+        cmd = (
+            f"ssh -i {SSH_KEY_PATH} -o IdentitiesOnly=yes "
+            "-o StrictHostKeyChecking=no"
+        )
+        os.environ["GIT_SSH_COMMAND"] = cmd
+        logger.debug(
+            "Using SSH key for git operations (not printing path for security)."
+        )
 
 
 def http_token_url(repo_http: str, token: str) -> str:
@@ -84,13 +102,16 @@ def http_token_url(repo_http: str, token: str) -> str:
     if not token:
         return repo_http
     if repo_http.startswith("https://"):
-        rest = repo_http[len("https://") :]
-        # use x-access-token as username — reliable for PATs
-        return f"https://x-access-token:{quote_plus(token)}@{rest}"
+        # slice off the 'https://' prefix (use fixed index to avoid formatter conflicts)
+        rest = repo_http[8:]
+        # use x-access-token as username (reliable for PATs)
+        return "https://x-access-token:" + quote_plus(token) + "@" + rest
     return repo_http
 
 
-def update_tfvars_and_push(repo_http: str, token: Optional[str], branch: str, target_file: str, image_ref: str):
+def update_tfvars_and_push(
+    repo_http: str, token: Optional[str], branch: str, target_file: str, image_ref: str
+):
     tmpdir = tempfile.mkdtemp(prefix="manifest_repo_")
     try:
         # If SSH repo configured, ensure SSH key env is set
@@ -102,17 +123,21 @@ def update_tfvars_and_push(repo_http: str, token: Optional[str], branch: str, ta
             if token:
                 repo_with_token = http_token_url(repo_http, token)
             else:
-                logger.info("Cloning over HTTPS without token (read-only or credential helper may be required).")
+                logger.info("Cloning HTTPS without token; clone may be read-only")
 
         logger.info("Cloning manifest repo %s (branch=%s)", repo_http, branch)
         try:
             repo = Repo.clone_from(repo_with_token, tmpdir, branch=branch)
         except GitCommandError as e:
-            # If the requested branch doesn't exist, clone default branch and create it locally
+            # If the requested branch is missing, clone default branch and
+            # create it locally.
             msg = str(e)
             logger.warning("Clone with branch '%s' failed: %s", branch, msg)
             if "Remote branch" in msg or "not found" in msg:
-                logger.info("Falling back to clone default branch and creating '%s' locally", branch)
+                logger.info(
+                    "Falling back to clone default branch and creating '%s' locally",
+                    branch,
+                )
                 repo = Repo.clone_from(repo_with_token, tmpdir)
                 # create new branch locally
                 repo.git.checkout("-b", branch)
@@ -120,13 +145,17 @@ def update_tfvars_and_push(repo_http: str, token: Optional[str], branch: str, ta
                 # re-raise for other git errors
                 raise
 
-        # If cloning used HTTPS+token, ensure origin uses the token-embedded URL to authenticate push
+        # If cloning used HTTPS+token, ensure origin uses the token URL for push
         if repo_http.startswith("https://") and token:
             try:
                 repo.remotes.origin.set_url(repo_with_token)
-                logger.debug("Set origin URL to token-embedded HTTPS URL for authenticated push")
+                logger.debug(
+                    "Set origin URL to token-embedded HTTPS URL for authenticated push"
+                )
             except Exception:
-                logger.debug("Failed to set origin URL to token-embedded URL; continuing")
+                logger.debug(
+                    "Failed to set origin URL to token-embedded URL; continuing"
+                )
 
         # If cloning used SSH, we don't change origin URL (will use ssh)
         with repo.config_writer() as cw:
@@ -143,7 +172,9 @@ def update_tfvars_and_push(repo_http: str, token: Optional[str], branch: str, ta
             content = fh.read()
 
         if image_ref in content:
-            logger.info("Image %s already present in %s; skipping.", image_ref, target_file)
+            logger.info(
+                "Image %s already present in %s; skipping.", image_ref, target_file
+            )
             return {"status": "skipped", "reason": "already_present"}
 
         pattern = re.compile(IMAGE_FIELD_REGEX, re.MULTILINE)
@@ -181,7 +212,10 @@ def update_tfvars_and_push(repo_http: str, token: Optional[str], branch: str, ta
             msg = str(e)
             logger.error("Push failed: %s", msg)
             if "403" in msg or "permission" in msg.lower() or "denied" in msg.lower():
-                logger.error("Push failed with permission error - check deploy key or GIT_TOKEN and branch protection rules")
+                logger.error(
+                    "Push failed with permission error - check deploy key, token,"
+                    " and branch protection rules"
+                )
             raise
 
         new_sha = repo.head.commit.hexsha
@@ -190,15 +224,23 @@ def update_tfvars_and_push(repo_http: str, token: Optional[str], branch: str, ta
     finally:
         try:
             shutil.rmtree(tmpdir)
-        except Exception:
-            pass
+        except Exception as e:
+            # Log cleanup failures (avoid silently swallowing exceptions)
+            logger.debug("Failed to remove tempdir %s: %s", tmpdir, e)
 
 
 @app.post("/hook/dockerhub")
-async def handle_dockerhub(request: Request, x_hub_signature: Optional[str] = Header(None)):
+async def handle_dockerhub(
+    request: Request, x_hub_signature: Optional[str] = Header(None)
+):
     body = await request.body()
-    logger.info("Received webhook request from %s", request.client.host if request.client else "unknown")
-    if WEBHOOK_SECRET and not verify_webhook_signature(WEBHOOK_SECRET, body, x_hub_signature):
+    logger.info(
+        "Received webhook request from %s",
+        request.client.host if request.client else "unknown",
+    )
+    if WEBHOOK_SECRET and not verify_webhook_signature(
+        WEBHOOK_SECRET, body, x_hub_signature
+    ):
         logger.warning("Invalid webhook signature")
         raise HTTPException(status_code=401, detail="invalid signature")
 
@@ -208,7 +250,9 @@ async def handle_dockerhub(request: Request, x_hub_signature: Optional[str] = He
         logger.exception("Failed to parse JSON payload: %s", e)
         raise HTTPException(status_code=400, detail="invalid json")
 
-    repo_name = payload.get("repository", {}).get("repo_name") or payload.get("repository", {}).get("name")
+    repo_name = payload.get("repository", {}).get("repo_name") or payload.get(
+        "repository", {}
+    ).get("name")
     push_data = payload.get("push_data", {}) or {}
     tag = push_data.get("tag")
     digest = push_data.get("digest")
@@ -220,7 +264,9 @@ async def handle_dockerhub(request: Request, x_hub_signature: Optional[str] = He
     image_ref = build_image_ref(repo_name, tag, digest)
     logger.info("Processing image update: %s", image_ref)
     try:
-        result = update_tfvars_and_push(MANIFEST_REPO_HTTP, GIT_TOKEN, TARGET_BRANCH, TARGET_FILE, image_ref)
+        result = update_tfvars_and_push(
+            MANIFEST_REPO_HTTP, GIT_TOKEN, TARGET_BRANCH, TARGET_FILE, image_ref
+        )
         logger.info("Update result: %s", result)
     except FileNotFoundError as e:
         logger.exception("Target file error: %s", e)
