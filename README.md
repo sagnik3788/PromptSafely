@@ -11,7 +11,7 @@ Its goal is to make prompts and responses **safe, policy-driven, and observable*
 - **Give teams control** through policies (YAML per tenant) that define redaction, blocking, and limits.  
 - **Provide observability** with audit logs, structured logs, and Prometheus metrics.  
 - **Control usage and costs** with per-tenant rate limits and token budgets.  
-- **Drop-in proxy**: apps can point to PromptSafely instead of calling OpenAI directly.  
+- **Drop-in proxy**: apps can point to PromptSafely instead of calling OpenAI directly
 
 ---
 
