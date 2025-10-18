@@ -2,9 +2,6 @@ from pydantic import BaseModel, Field, StringConstraints
 from typing import Annotated, List, Optional
 
 
-# ---- Models ------------------------------------------------------------------
-
-
 class ChatMessage(BaseModel):
     """Represents a single message in a chat conversation."""
 

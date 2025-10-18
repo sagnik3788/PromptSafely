@@ -30,7 +30,8 @@ secrets:
 # Tests
 test:
 	@echo "Running pytest..."
-	uv run pytest --maxfail=1 --disable-warnings -q
+	PYTHONPATH=. uv run pytest --maxfail=1 --disable-warnings -q
+
 
 # Run everything (same order as your CI)
 ci: install format lint security secrets test

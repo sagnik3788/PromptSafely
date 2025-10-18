@@ -1,6 +1,7 @@
 LICENSE
 README.md
 pyproject.toml
+src/__init__.py
 src/main.py
 src/filters/detectors.py
 src/moniter/logging.py
@@ -11,6 +12,7 @@ src/promptsafely.egg-info/dependency_links.txt
 src/promptsafely.egg-info/top_level.txt
 src/router/ollama_proxy.py
 src/router/openai_proxy.py
+src/router/openai_proxy_test.py
 src/schema/openai.py
 src/storage/audit.py
 src/storage/db.py

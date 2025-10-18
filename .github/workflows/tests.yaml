@@ -16,4 +16,5 @@ jobs:
 
       - name: Run tests
         run: |
-          uv run pytest --maxfail=1 --disable-warnings -q
+          PYTHONPATH=. uv run pytest --maxfail=1 --disable-warnings -q
+
